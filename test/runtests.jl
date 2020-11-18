@@ -1,5 +1,6 @@
 using TableOperations, Tables, Test
 
+ctable_type_any = (A=Any[1, missing, 3], B=Any[1.0, 2.0, 3.0], C=Any["hey", "there", "sailor"])
 ctable = (A=[1, missing, 3], B=[1.0, 2.0, 3.0], C=["hey", "there", "sailor"])
 rtable = Tables.rowtable(ctable)
 rtable2 = Iterators.filter(i -> i.a % 2 == 0, [(a=x, b=y) for (x, y) in zip(1:20, 21:40)])
@@ -314,5 +315,15 @@ parts = collect(Tables.partitions(TableOperations.makepartitions(rtable2, 3)))
 @test length(parts[1]) == 3
 @test length(parts[end]) == 1
 @test parts[end][1].a == 20
+
+@testset "TableOperations.narrowtypes" begin
+
+nt = TableOperations.narrowtypes(ctable_type_any)
+@test Tables.istable(nt)
+@test Tables.columnaccess(nt)
+@test Tables.schema(nt) == Tables.schema(ctable)
+@test Tables.columnnames(nt) == Tables.columnnames(ctable)
+
+end
 
 end
